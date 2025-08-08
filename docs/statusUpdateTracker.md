@@ -42,7 +42,9 @@ flowchart TD
 | -------------------- | ----------------------------- | -------------- | ------------------------ | ------------------------------------------------------ |
 | `CREATE_LEAD`        | Lead Creation                 | Backend        | `convex/lead_service.ts` | `createNewLead()` - Lines 28-33                        |
 | `BUILD_TEAM`         | Lead Creation (conditional)   | Backend        | `convex/lead_service.ts` | `createNewLead()` - Lines 35-42                        |
+| `BUILD_TEAM`         | Page Entry Trigger            | Frontend       | `TeamAssigner.tsx`       | `useEffect()` - Lines 72-77 (triggers when page loads) |
 | `ATTATCH_QUALIFIER`  | Team Assignment Complete      | Backend        | `convex/team_service.ts` | `updateStatusToAttachQualifier()` - Lines 140-144      |
+| `ATTATCH_QUALIFIER`  | Page Entry Trigger            | Frontend       | `AttatchQualifier.tsx`   | `useEffect()` - Lines 48-53 (triggers when page loads) |
 | `SEND_QUALIFIER`     | Form Attachment (conditional) | Backend        | `convex/form_service.ts` | `attachFormToLead()` - Lines 47-51, 69-74              |
 | `SEND_QUALIFIER`     | Page Entry Trigger            | Frontend       | `SendQualifier.tsx`      | `useEffect()` - Lines 72-80 (triggers when page loads) |
 | `AWAIT_RESPONSE`     | Email Sent                    | Frontend       | `SendQualifier.tsx`      | `handleSendEmail()` - Lines 300-304                    |
@@ -104,6 +106,8 @@ Status updates triggered by business logic:
 
 Status updates triggered automatically when user navigates to specific pages:
 
+- `BUILD_TEAM` → Automatically set when user enters `/build-team/[lead_id]` page (useEffect hook)
+- `ATTATCH_QUALIFIER` → Automatically set when user enters `/attach-qualifier/[lead_id]` page (useEffect hook)
 - `SEND_QUALIFIER` → Automatically set when user enters `/send-qualifier/[lead_id]` page (useEffect hook)
 - `AWAIT_RESPONSE` → Set after email successfully sent (user action within the page)
 
@@ -119,13 +123,13 @@ The `attachFormToLead` function conditionally creates `SEND_QUALIFIER` status:
 ### Lead Creation → Team Building
 
 ```
-CREATE_LEAD (auto) → BUILD_TEAM (conditional) → TeamAssigner UI → ATTATCH_QUALIFIER (via updateStatusToAttachQualifier)
+CREATE_LEAD (auto) → BUILD_TEAM (conditional + page entry) → TeamAssigner UI → ATTATCH_QUALIFIER (via updateStatusToAttachQualifier + page entry)
 ```
 
 ### Qualifier Attachment → Sending
 
 ```
-ATTATCH_QUALIFIER → AttachQualifier UI → SEND_QUALIFIER (conditional via attachFormToLead)
+ATTATCH_QUALIFIER (page entry) → AttachQualifier UI → SEND_QUALIFIER (conditional via attachFormToLead + page entry)
 ```
 
 ### Email Sending → Response
@@ -134,7 +138,11 @@ ATTATCH_QUALIFIER → AttachQualifier UI → SEND_QUALIFIER (conditional via att
 SEND_QUALIFIER (page entry trigger) → SendQualifier UI → AWAIT_RESPONSE (after email sent) → ClientForm → QUALIFIER_RECEIVED (auto)
 ```
 
-**Note**: The `SEND_QUALIFIER` status is automatically created when a user navigates to the send qualifier page, regardless of how they got there (direct URL, quick action, etc.). This ensures the status is always set when someone is actively on the email sending page.
+**Note**: The status updates follow a consistent pattern where each page in the workflow automatically creates its corresponding status when the user navigates to it. This ensures the status is always set when someone is actively on that page, regardless of how they got there (direct URL, quick action, etc.). This includes:
+
+- `BUILD_TEAM` when entering team assignment page
+- `ATTATCH_QUALIFIER` when entering qualifier attachment page
+- `SEND_QUALIFIER` when entering email sending page
 
 ## Current Issues & Observations
 
@@ -155,8 +163,9 @@ SEND_QUALIFIER (page entry trigger) → SendQualifier UI → AWAIT_RESPONSE (aft
 ## Implementation Count
 
 - **Fully Implemented**: 6/20 (30%)
-- **Backend Implemented**: 5/6 implemented statuses
-- **Frontend Implemented**: 2/6 implemented statuses
+- **Total Implementation Points**: 10 (multiple triggers per status)
+- **Backend Automatic**: 6 implementations
+- **Frontend Page Entry**: 4 implementations
 - **Missing Implementation**: 14/20 (70%)
 
 ## Next Implementation Priorities
