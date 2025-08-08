@@ -38,15 +38,15 @@ flowchart TD
 
 ### ✅ Implemented Status Updates
 
-| Status               | Trigger Location              | Implementation | Function/Component       | Method                                            |
-| -------------------- | ----------------------------- | -------------- | ------------------------ | ------------------------------------------------- |
-| `CREATE_LEAD`        | Lead Creation                 | Backend        | `convex/lead_service.ts` | `createNewLead()` - Lines 28-33                   |
-| `BUILD_TEAM`         | Lead Creation (conditional)   | Backend        | `convex/lead_service.ts` | `createNewLead()` - Lines 35-42                   |
-| `ATTATCH_QUALIFIER`  | Team Assignment Complete      | Backend        | `convex/team_service.ts` | `updateStatusToAttachQualifier()` - Lines 140-144 |
-| `SEND_QUALIFIER`     | Form Attachment (conditional) | Backend        | `convex/form_service.ts` | `attachFormToLead()` - Lines 47-51, 69-74         |
-| `SEND_QUALIFIER`     | Manual UI Trigger             | Frontend       | `SendQualifier.tsx`      | `useEffect()` - Lines 72-80                       |
-| `AWAIT_RESPONSE`     | Email Sent                    | Frontend       | `SendQualifier.tsx`      | `handleSendEmail()` - Lines 300-304               |
-| `QUALIFIER_RECEIVED` | Form Response Submitted       | Backend        | `convex/form_service.ts` | `recordFormResponse()` - Lines 222-227            |
+| Status               | Trigger Location              | Implementation | Function/Component       | Method                                                 |
+| -------------------- | ----------------------------- | -------------- | ------------------------ | ------------------------------------------------------ |
+| `CREATE_LEAD`        | Lead Creation                 | Backend        | `convex/lead_service.ts` | `createNewLead()` - Lines 28-33                        |
+| `BUILD_TEAM`         | Lead Creation (conditional)   | Backend        | `convex/lead_service.ts` | `createNewLead()` - Lines 35-42                        |
+| `ATTATCH_QUALIFIER`  | Team Assignment Complete      | Backend        | `convex/team_service.ts` | `updateStatusToAttachQualifier()` - Lines 140-144      |
+| `SEND_QUALIFIER`     | Form Attachment (conditional) | Backend        | `convex/form_service.ts` | `attachFormToLead()` - Lines 47-51, 69-74              |
+| `SEND_QUALIFIER`     | Page Entry Trigger            | Frontend       | `SendQualifier.tsx`      | `useEffect()` - Lines 72-80 (triggers when page loads) |
+| `AWAIT_RESPONSE`     | Email Sent                    | Frontend       | `SendQualifier.tsx`      | `handleSendEmail()` - Lines 300-304                    |
+| `QUALIFIER_RECEIVED` | Form Response Submitted       | Backend        | `convex/form_service.ts` | `recordFormResponse()` - Lines 222-227                 |
 
 ### ❌ Missing Status Updates
 
@@ -100,12 +100,12 @@ Status updates triggered by business logic:
 - `SEND_QUALIFIER` → Created when form attached with `sendToNextStatus: true`
 - `QUALIFIER_RECEIVED` → Created when form response recorded
 
-#### 2. **Frontend Manual Updates**
+#### 2. **Frontend Page Entry Updates**
 
-Status updates triggered by user interactions:
+Status updates triggered automatically when user navigates to specific pages:
 
-- `SEND_QUALIFIER` → Set via UI when entering send qualifier page
-- `AWAIT_RESPONSE` → Set after email successfully sent
+- `SEND_QUALIFIER` → Automatically set when user enters `/send-qualifier/[lead_id]` page (useEffect hook)
+- `AWAIT_RESPONSE` → Set after email successfully sent (user action within the page)
 
 #### 3. **Mixed Pattern (Form Attachment)**
 
@@ -131,8 +131,10 @@ ATTATCH_QUALIFIER → AttachQualifier UI → SEND_QUALIFIER (conditional via att
 ### Email Sending → Response
 
 ```
-SEND_QUALIFIER (UI trigger) → SendQualifier UI → AWAIT_RESPONSE (after email sent) → ClientForm → QUALIFIER_RECEIVED (auto)
+SEND_QUALIFIER (page entry trigger) → SendQualifier UI → AWAIT_RESPONSE (after email sent) → ClientForm → QUALIFIER_RECEIVED (auto)
 ```
+
+**Note**: The `SEND_QUALIFIER` status is automatically created when a user navigates to the send qualifier page, regardless of how they got there (direct URL, quick action, etc.). This ensures the status is always set when someone is actively on the email sending page.
 
 ## Current Issues & Observations
 
