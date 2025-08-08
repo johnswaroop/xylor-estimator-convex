@@ -1,5 +1,5 @@
 "use client";
-import Dashboard from "./funnel";
+import Funnel from "./Funnel";
 import React from "react";
 import { useQueryState } from "nuqs";
 import { Id } from "@/convex/_generated/dataModel";
@@ -18,7 +18,7 @@ function Page() {
 
   return (
     <div>
-      <Dashboard company_id={companyId as Id<"company">} />
+      <Funnel company_id={companyId as Id<"company">} />
     </div>
   );
 }
