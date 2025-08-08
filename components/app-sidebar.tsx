@@ -27,8 +27,8 @@ const data = {
   },
   navMain: [
     {
-      title: "Funnel",
-      url: "#",
+      title: "Dashboard",
+      url: "/dashboard",
       icon: Filter,
       isActive: true,
       children: [

@@ -16,11 +16,31 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import Loader from "@/components/Loader";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { useBreadcrumbs } from "@/hooks/useBreadcrumbs";
 
 export default function Page({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+
+  const params = useParams();
   const [companyId, setCompanyId] = useQueryState("companyId");
+
+  // Extract leadId from URL params if available
+  const leadId = params?.lead_id as string;
+
+  // Generate breadcrumbs
+  const breadcrumbs = useBreadcrumbs({
+    companyId: companyId || undefined,
+    leadId: leadId || undefined,
+  });
 
   //fetch all user companies
   const memberships = useQuery(api.company_service.getUserCompaniesList, {});
@@ -65,7 +85,27 @@ export default function Page({ children }: { children: React.ReactNode }) {
               orientation="vertical"
               className="mx-2 data-[orientation=vertical]:h-4"
             />
-            <h1 className="text-base font-medium">Documents</h1>
+            <Breadcrumb>
+              <BreadcrumbList>
+                {breadcrumbs.map((crumb, index) => (
+                  <div key={index} className="flex items-center">
+                    {index > 0 && <BreadcrumbSeparator />}
+                    <BreadcrumbItem>
+                      {crumb.isCurrentPage ? (
+                        <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                      ) : (
+                        <BreadcrumbLink
+                          href={crumb.href}
+                          className="text-muted-foreground hover:text-foreground"
+                        >
+                          {crumb.label}
+                        </BreadcrumbLink>
+                      )}
+                    </BreadcrumbItem>
+                  </div>
+                ))}
+              </BreadcrumbList>
+            </Breadcrumb>
           </div>
 
           <Button

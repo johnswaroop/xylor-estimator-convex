@@ -18,6 +18,15 @@ import {
   Plus,
   UserPlus,
   AlertCircle,
+  Send,
+  FileText,
+  Users,
+  CheckCircle,
+  XCircle,
+  Calculator,
+  Clock,
+  ArrowRight,
+  Eye,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -35,6 +44,7 @@ import { OverviewTab } from "./OverviewTab";
 import { ResponseTab } from "./ResponseTab";
 import { ActivityTab } from "./ActivityTab";
 import DocumentsTab from "./DocumentsTab";
+import { useRouter } from "next/navigation";
 
 export type TLeadData = Awaited<
   ReturnType<typeof useQuery<typeof api.lead_service.getLeadById>>
@@ -46,6 +56,347 @@ export type TFormData = Awaited<
   >
 >;
 
+type QuickAction = {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  variant: "default" | "outline" | "secondary" | "destructive" | "ghost";
+  onClick: () => void;
+  description: string;
+  disabled?: boolean;
+};
+
+// Status-based quick actions mapping
+// Status indicates the CURRENT process being performed, not completion
+const getQuickActionsForStatus = (
+  status: string,
+  company_id: string,
+  lead_id: string,
+  router: ReturnType<typeof useRouter>,
+): QuickAction[] => {
+  const actions: QuickAction[] = [];
+
+  switch (status) {
+    case "CREATE_LEAD":
+      // Currently: Lead has been created, ready for next steps
+      actions.push({
+        icon: Users,
+        label: "Build Team",
+        variant: "default" as const,
+        onClick: () =>
+          router.push(`/bd/actions/${company_id}/build-team/${lead_id}`),
+        description: "Start team assignment process",
+      });
+      break;
+
+    case "BUILD_TEAM":
+      // Currently: Team building process is active
+      actions.push({
+        icon: Users,
+        label: "Continue Team Building",
+        variant: "default" as const,
+        onClick: () =>
+          router.push(`/bd/actions/${company_id}/build-team/${lead_id}`),
+        description: "Continue assigning team members",
+      });
+      actions.push({
+        icon: MessageSquare,
+        label: "Add Team Notes",
+        variant: "outline" as const,
+        onClick: () => {},
+        description: "Add notes about team requirements",
+      });
+      break;
+
+    case "ATTATCH_QUALIFIER":
+      // Currently: Qualifier attachment process is active
+      actions.push({
+        icon: FileText,
+        label: "Continue Qualifier Setup",
+        variant: "default" as const,
+        onClick: () =>
+          router.push(`/bd/actions/${company_id}/attach-qualifier/${lead_id}`),
+        description: "Continue setting up qualification form",
+      });
+      actions.push({
+        icon: Eye,
+        label: "Preview Qualifier",
+        variant: "outline" as const,
+        onClick: () => {},
+        description: "Preview the qualification form",
+      });
+      break;
+
+    case "SEND_QUALIFIER":
+      // Currently: Qualifier sending process is active
+      actions.push({
+        icon: Send,
+        label: "Continue Email Setup",
+        variant: "default" as const,
+        onClick: () =>
+          router.push(`/bd/actions/${company_id}/send-qualifier/${lead_id}`),
+        description: "Continue setting up qualifier email",
+      });
+      actions.push({
+        icon: Eye,
+        label: "Preview Email",
+        variant: "outline" as const,
+        onClick: () => {},
+        description: "Preview the email content",
+      });
+      break;
+
+    case "AWAIT_RESPONSE":
+      // Currently: Waiting for client response (passive state)
+      actions.push({
+        icon: Phone,
+        label: "Follow Up Client",
+        variant: "default" as const,
+        onClick: () => {},
+        description: "Contact client for follow-up",
+      });
+      actions.push({
+        icon: Send,
+        label: "Resend Qualifier",
+        variant: "outline" as const,
+        onClick: () =>
+          router.push(`/bd/actions/${company_id}/send-qualifier/${lead_id}`),
+        description: "Send qualifier email again",
+      });
+      actions.push({
+        icon: Clock,
+        label: "Set Reminder",
+        variant: "outline" as const,
+        onClick: () => {},
+        description: "Set a follow-up reminder",
+      });
+      break;
+
+    case "QUALIFIER_RECEIVED":
+      // Currently: Processing received qualifier
+      actions.push({
+        icon: Eye,
+        label: "Review Qualifier Response",
+        variant: "default" as const,
+        onClick: () => {},
+        description: "Review the submitted qualification",
+      });
+      break;
+
+    case "QUALIFIER_IN_REVIEW":
+      // Currently: Internal review process is active
+      actions.push({
+        icon: CheckCircle,
+        label: "Approve Qualifier",
+        variant: "default" as const,
+        onClick: () => {},
+        description: "Approve qualification for estimation",
+      });
+      actions.push({
+        icon: XCircle,
+        label: "Reject Qualifier",
+        variant: "destructive" as const,
+        onClick: () => {},
+        description: "Reject the qualification",
+      });
+      actions.push({
+        icon: MessageSquare,
+        label: "Add Review Notes",
+        variant: "outline" as const,
+        onClick: () => {},
+        description: "Add notes to the review",
+      });
+      break;
+
+    case "QUALIFIER_APPROVED":
+      // Currently: Processing approved qualifier for next steps
+      actions.push({
+        icon: Calculator,
+        label: "Send for Estimate",
+        variant: "default" as const,
+        onClick: () => {},
+        description: "Forward to estimation team",
+      });
+      actions.push({
+        icon: Users,
+        label: "Assign Estimator",
+        variant: "outline" as const,
+        onClick: () => {},
+        description: "Assign specific estimator",
+      });
+      break;
+
+    case "QUALIFIER_REJECTED":
+      // Currently: Processing rejected qualifier
+      actions.push({
+        icon: MessageSquare,
+        label: "Document Rejection",
+        variant: "default" as const,
+        onClick: () => {},
+        description: "Document rejection reasons",
+      });
+      actions.push({
+        icon: Mail,
+        label: "Notify Client",
+        variant: "outline" as const,
+        onClick: () => {},
+        description: "Send rejection notification",
+      });
+      actions.push({
+        icon: ArrowRight,
+        label: "Restart Process",
+        variant: "outline" as const,
+        onClick: () =>
+          router.push(`/bd/actions/${company_id}/attach-qualifier/${lead_id}`),
+        description: "Start new qualification process",
+      });
+      break;
+
+    case "SENT_FOR_ESTIMATE":
+      // Currently: Estimate request is in progress
+      actions.push({
+        icon: Users,
+        label: "Contact Estimator",
+        variant: "default" as const,
+        onClick: () => {},
+        description: "Follow up with estimation team",
+      });
+      actions.push({
+        icon: Clock,
+        label: "Set Estimate Deadline",
+        variant: "outline" as const,
+        onClick: () => {},
+        description: "Set deadline for estimate",
+      });
+      actions.push({
+        icon: Eye,
+        label: "Track Progress",
+        variant: "outline" as const,
+        onClick: () => {},
+        description: "Monitor estimation progress",
+      });
+      break;
+
+    case "ESTIMATE_RECEIVED":
+      // Currently: Processing received estimate
+      actions.push({
+        icon: Eye,
+        label: "Review Estimate",
+        variant: "default" as const,
+        onClick: () => {},
+        description: "Review the prepared estimate",
+      });
+      actions.push({
+        icon: ArrowRight,
+        label: "Start Review Process",
+        variant: "outline" as const,
+        onClick: () => {},
+        description: "Begin formal estimate review",
+      });
+      break;
+
+    case "ESTIMATE_IN_REVIEW":
+      // Currently: Estimate review process is active
+      actions.push({
+        icon: CheckCircle,
+        label: "Approve Estimate",
+        variant: "default" as const,
+        onClick: () => {},
+        description: "Approve estimate for client",
+      });
+      actions.push({
+        icon: XCircle,
+        label: "Request Changes",
+        variant: "outline" as const,
+        onClick: () => {},
+        description: "Request estimate modifications",
+      });
+      actions.push({
+        icon: MessageSquare,
+        label: "Add Review Comments",
+        variant: "outline" as const,
+        onClick: () => {},
+        description: "Add comments to the review",
+      });
+      break;
+
+    case "ESTIMATE_APPROVED":
+      // Currently: Processing approved estimate for client
+      actions.push({
+        icon: Send,
+        label: "Prepare Client Email",
+        variant: "default" as const,
+        onClick: () => {},
+        description: "Prepare estimate email for client",
+      });
+      actions.push({
+        icon: Eye,
+        label: "Review Final Estimate",
+        variant: "outline" as const,
+        onClick: () => {},
+        description: "Final review before sending",
+      });
+      break;
+
+    case "SEND_ESTIMATE":
+      // Currently: Estimate sending process is active
+      actions.push({
+        icon: Send,
+        label: "Send to Client",
+        variant: "default" as const,
+        onClick: () => {},
+        description: "Send estimate to client",
+      });
+      actions.push({
+        icon: Eye,
+        label: "Preview Email",
+        variant: "outline" as const,
+        onClick: () => {},
+        description: "Preview estimate email",
+      });
+      break;
+
+    case "AWAIT_ESTIMATE_RESPONSE":
+      // Currently: Waiting for client estimate response
+      actions.push({
+        icon: Phone,
+        label: "Follow Up Client",
+        variant: "default" as const,
+        onClick: () => {},
+        description: "Contact client about estimate",
+      });
+      actions.push({
+        icon: Clock,
+        label: "Set Follow-up Reminder",
+        variant: "outline" as const,
+        onClick: () => {},
+        description: "Schedule follow-up reminder",
+      });
+      break;
+
+    default:
+      // Default actions for unknown/future statuses
+      actions.push({
+        icon: MessageSquare,
+        label: "Add Status Note",
+        variant: "outline" as const,
+        onClick: () => {},
+        description: "Add note about current status",
+      });
+      break;
+  }
+
+  // Always add these universal actions
+  actions.push({
+    icon: MessageSquare,
+    label: "Add Note",
+    variant: "ghost" as const,
+    onClick: () => {},
+    description: "Add a general note to this lead",
+  });
+
+  return actions;
+};
+
 const LeadView = ({
   company_id,
   lead_id,
@@ -55,6 +406,7 @@ const LeadView = ({
 }) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [isStarred, setIsStarred] = useState(false);
+  const router = useRouter();
 
   // Fetch lead data from Convex
   const leadData = useQuery(api.lead_service.getLeadById, {
@@ -181,6 +533,14 @@ const LeadView = ({
         </div>
       );
 
+    const currentStatus = leadData.status_history?.[0]?.status || "UNKNOWN";
+    const quickActions = getQuickActionsForStatus(
+      currentStatus,
+      company_id,
+      lead_id,
+      router,
+    );
+
     return (
       <div className="space-y-8">
         {/* Current Status */}
@@ -192,10 +552,10 @@ const LeadView = ({
             </span>
           </div>
           <p className="text-lg font-bold text-blue-800 dark:text-blue-200">
-            {leadData.status_history?.[0]?.status
+            {currentStatus
               .split("_")
               .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-              .join(" ") || "UNKNOWN"}
+              .join(" ")}
           </p>
           <p className="text-xs text-blue-600 dark:text-blue-300 mt-1">
             Currently being performed
@@ -204,17 +564,60 @@ const LeadView = ({
 
         <Separator />
 
+        {/* Dynamic Quick Actions */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Quick Actions</h3>
-          <div className="space-y-2">
-            <Button className="w-full" variant="outline">
-              <Plus className="mr-2 h-4 w-4" />
-              Add task
-            </Button>
-            <Button className="w-full" variant="outline">
-              <UserPlus className="mr-2 h-4 w-4" />
-              Assign
-            </Button>
+          <div className="space-y-3">
+            {quickActions.slice(0, 3).map((action, index) => {
+              const IconComponent = action.icon;
+              return (
+                <div key={index} className="space-y-1">
+                  <Button
+                    className="w-full justify-start"
+                    variant={action.variant}
+                    onClick={action.onClick}
+                    disabled={action.disabled}
+                  >
+                    <IconComponent className="mr-2 h-4 w-4" />
+                    {action.label}
+                  </Button>
+                  <p className="text-xs text-muted-foreground px-2">
+                    {action.description}
+                  </p>
+                </div>
+              );
+            })}
+
+            {quickActions.length > 3 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="w-full">
+                    <Plus className="mr-2 h-4 w-4" />
+                    More Actions ({quickActions.length - 3})
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  {quickActions.slice(3).map((action, index) => {
+                    const IconComponent = action.icon;
+                    return (
+                      <DropdownMenuItem
+                        key={index}
+                        onClick={action.onClick}
+                        disabled={action.disabled}
+                      >
+                        <IconComponent className="mr-2 h-4 w-4" />
+                        <div className="flex flex-col">
+                          <span>{action.label}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {action.description}
+                          </span>
+                        </div>
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
 
@@ -225,7 +628,13 @@ const LeadView = ({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Team Members</h3>
-            <Button variant="outline" size="sm">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                router.push(`/bd/actions/${company_id}/build-team/${lead_id}`)
+              }
+            >
               <UserPlus className="mr-1 h-4 w-4" />
               Assign
             </Button>

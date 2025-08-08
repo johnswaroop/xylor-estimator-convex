@@ -1142,9 +1142,12 @@ const ReviewSubmitStep = ({
 export const useQueryWithStatus = makeUseQueryWithStatus(useQueries);
 
 export default function ProjectEstimateForm({ form_id }: { form_id: string }) {
-  const { error, isPending } = useQueryWithStatus(api.form_service.getForm, {
-    form_id: form_id as Id<"qualification_form">,
-  });
+  const { error, isPending, data } = useQueryWithStatus(
+    api.form_service.getForm,
+    {
+      form_id: form_id as Id<"qualification_form">,
+    },
+  );
 
   const recordFormResponse = useMutation(api.form_service.recordFormResponse);
 
@@ -1257,6 +1260,7 @@ export default function ProjectEstimateForm({ form_id }: { form_id: string }) {
 
       if (response.success) {
         toast.success("Form response recorded successfully");
+        window.location.reload();
       } else {
         toast.error("Failed to record form response");
         console.error(response.error_message);
@@ -1317,6 +1321,51 @@ export default function ProjectEstimateForm({ form_id }: { form_id: string }) {
             </ul>
             <p className="text-gray-600">
               Please contact the person who sent you this form for assistance.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  //check if the form is submitted
+  if (data?.response_received) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8 flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardHeader className="text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg
+                className="w-8 h-8 text-green-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+            <CardTitle className="text-green-600">
+              Form Submitted Successfully
+            </CardTitle>
+            <CardDescription>
+              Thank you for your interest! Your project qualification form has
+              been received.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-center">
+            <p className="text-gray-600 mb-4">
+              We have successfully received your project details and our team
+              will review your submission shortly.
+            </p>
+
+            <p className="text-sm text-gray-500">
+              If you have any urgent questions, please contact our team
+              directly.
             </p>
           </CardContent>
         </Card>
