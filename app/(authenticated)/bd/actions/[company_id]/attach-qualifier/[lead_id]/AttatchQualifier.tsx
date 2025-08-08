@@ -42,6 +42,18 @@ export default function AttatchQualifier({
   const attachFormToLead = useMutation(api.form_service.attachFormToLead);
   const [isLoading, setIsLoading] = useState(false);
 
+  //set status to attach qualifier on enter
+  const attachQualifierStatus = useMutation(api.status_service.registerStatus);
+  useEffect(() => {
+    if (lead_id) {
+      attachQualifierStatus({
+        lead_id: lead_id as Id<"lead">,
+        statusName: "ATTATCH_QUALIFIER",
+        patch: true,
+      });
+    }
+  }, [lead_id, attachQualifierStatus]);
+
   //get lead information
   const leadDetails = useQuery(api.lead_service.getLeadById, {
     lead_id: lead_id as Id<"lead">,

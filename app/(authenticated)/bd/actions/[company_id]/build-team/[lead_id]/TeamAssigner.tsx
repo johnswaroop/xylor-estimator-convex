@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -65,6 +65,19 @@ export default function TeamAssigner({
   const [attachQualifier, setAttachQualifier] = useState(true);
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
+
+  //set status to build team on enter
+  const buildTeamStatus = useMutation(api.status_service.registerStatus);
+  useEffect(() => {
+    if (lead_id) {
+      buildTeamStatus({
+        lead_id: lead_id as Id<"lead">,
+        statusName: "BUILD_TEAM",
+        patch: true,
+      });
+    }
+  }, [lead_id, buildTeamStatus]);
+
   //get lead information
   const leadDetails = useQuery(api.lead_service.getLeadById, {
     lead_id: lead_id as Id<"lead">,

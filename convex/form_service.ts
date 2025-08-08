@@ -34,23 +34,10 @@ export const attachFormToLead = mutation({
         form_name: args.form_name,
       });
 
-      //check if the status is ATTATCH_QUALIFIER
       const status = await ctx.db
         .query("status")
         .withIndex("by_lead_id", (q) => q.eq("lead_id", args.lead_id))
         .collect();
-
-      if (
-        !status.find((s) => s.status === "ATTATCH_QUALIFIER") &&
-        args.sendToNextStatus
-      ) {
-        //create new status
-        await ctx.db.insert("status", {
-          name: "ATTATCH_QUALIFIER",
-          lead_id: args.lead_id,
-          status: "ATTATCH_QUALIFIER",
-        });
-      }
 
       if (
         args.sendToNextStatus &&
@@ -76,13 +63,6 @@ export const attachFormToLead = mutation({
       email_sent: false,
       response_received: false,
       valid: true,
-    });
-
-    //create new status
-    await ctx.db.insert("status", {
-      name: "ATTATCH_QUALIFIER",
-      lead_id: args.lead_id,
-      status: "ATTATCH_QUALIFIER",
     });
 
     if (args.sendToNextStatus) {
@@ -238,6 +218,14 @@ export const recordFormResponse = mutation({
         response: args.response,
         response_received: true,
       });
+
+      //update status to QUALIFIER_RECEIVED
+      await ctx.db.insert("status", {
+        name: "QUALIFIER_RECEIVED",
+        lead_id: form.lead_id,
+        status: "QUALIFIER_RECEIVED",
+      });
+
       return {
         success: true,
         updatedForm,

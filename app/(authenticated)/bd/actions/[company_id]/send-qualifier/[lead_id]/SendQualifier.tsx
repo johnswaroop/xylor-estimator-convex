@@ -68,6 +68,7 @@ function SendQualifier({
     api.form_service.updateFormWithEmailSent,
   );
 
+  //if user enters from quick action
   useEffect(() => {
     if (leadDetails && leadDetails.lead._id) {
       sendQualifierStatus({
