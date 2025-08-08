@@ -16,8 +16,10 @@ export interface ChevronStepperProps {
   onStepClick?: (stepId: string) => void;
   className?: string;
   selectedStep: string;
-  selectedSubStep: string;
+  selectedSubStep?: string;
   onSubStepClick?: (subStepId: string) => void;
+  stepCount?: { [key: string]: number };
+  subStepCount?: { [key: string]: number };
 }
 
 const ChevronButton = React.forwardRef<
@@ -27,8 +29,9 @@ const ChevronButton = React.forwardRef<
     onClick?: () => void;
     className?: string;
     active?: boolean;
+    count?: number;
   }
->(({ step, onClick, className, active }) => {
+>(({ step, onClick, className, active, count }) => {
   return (
     <div
       onClick={onClick}
@@ -43,8 +46,8 @@ const ChevronButton = React.forwardRef<
           {step.replace("_", " ")}
         </span>
         <span className="flex items-center w-fit gap-1 justify-between text-xs">
-          <p>16</p> {"."}
-          <p>5 new</p>
+          <p>{count || 0}</p> {"."}
+          <p>leads</p>
         </span>
       </div>
       <ChevronRight className="size-4 text-muted-foreground mx-4" />
@@ -66,6 +69,8 @@ export const ChevronStepper = React.forwardRef<
       selectedStep,
       selectedSubStep,
       onSubStepClick,
+      stepCount,
+      subStepCount,
     },
     ref,
   ) => {
@@ -87,6 +92,7 @@ export const ChevronStepper = React.forwardRef<
                 onClick={() => onStepClick?.(status.step)}
                 className={cn(index > 0 && "-ml-4")}
                 active={status.step === selectedStep}
+                count={stepCount?.[status.step]}
               />
             </div>
           ))}
@@ -106,7 +112,7 @@ export const ChevronStepper = React.forwardRef<
                 className="text-xs cursor-pointer"
                 onClick={() => onSubStepClick?.(subStep)}
               >
-                {subStep.replaceAll("_", " ")}
+                {subStep.replaceAll("_", " ")} ({subStepCount?.[subStep] || 0})
               </Badge>
             </div>
           ))}

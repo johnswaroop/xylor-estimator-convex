@@ -202,6 +202,12 @@ export default function Funnel({ company_id }: { company_id: Id<"company"> }) {
   });
 
   const [data, setData] = React.useState<z.infer<typeof schema>[]>([]);
+  const [stepCount, setStepCount] = React.useState<{ [key: string]: number }>(
+    {},
+  );
+  const [subStepCount, setSubStepCount] = React.useState<{
+    [key: string]: number;
+  }>({});
 
   // Update local data when Convex data changes
   React.useEffect(() => {
@@ -214,6 +220,37 @@ export default function Funnel({ company_id }: { company_id: Id<"company"> }) {
         status: lead.status || "",
       }));
       setData(transformedData);
+
+      // Calculate step counts (number of leads in each main step)
+      const stepCounts: { [key: string]: number } = {};
+      const subStepCounts: { [key: string]: number } = {};
+
+      // Initialize all steps and substeps with 0
+      Object.values(statusMapping).forEach((stepConfig) => {
+        stepCounts[stepConfig.step] = 0;
+        stepConfig.statuses.forEach((status) => {
+          subStepCounts[status] = 0;
+        });
+      });
+
+      // Count leads for each step and substep
+      transformedData.forEach((lead) => {
+        if (lead.status) {
+          // Count for substep
+          subStepCounts[lead.status] = (subStepCounts[lead.status] || 0) + 1;
+
+          // Find which main step this status belongs to and count for step
+          Object.values(statusMapping).forEach((stepConfig) => {
+            if (stepConfig.statuses.includes(lead.status)) {
+              stepCounts[stepConfig.step] =
+                (stepCounts[stepConfig.step] || 0) + 1;
+            }
+          });
+        }
+      });
+
+      setStepCount(stepCounts);
+      setSubStepCount(subStepCounts);
     }
   }, [leadsData]);
 
@@ -339,10 +376,7 @@ export default function Funnel({ company_id }: { company_id: Id<"company"> }) {
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
-  // Reset pagination when filtering changes
-  React.useEffect(() => {
-    // Removed pagination reset
-  }, [selectedStep, selectedSubStep]);
+  console.log({ stepCount, subStepCount });
 
   return (
     <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
@@ -354,6 +388,8 @@ export default function Funnel({ company_id }: { company_id: Id<"company"> }) {
           selectedStep={selectedStep}
           selectedSubStep={selectedSubStep}
           onSubStepClick={handleSubStepClick}
+          stepCount={stepCount}
+          subStepCount={subStepCount}
         />
       </div>
 
