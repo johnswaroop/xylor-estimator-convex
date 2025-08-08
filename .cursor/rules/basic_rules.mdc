@@ -1,0 +1,36 @@
+---
+alwaysApply: true
+---
+
+# Basic Development Rules
+
+## Server Management
+
+- **NEVER start the development server** - it's always running in the background
+- Don't run `npm run dev`, `yarn dev`, or similar commands
+- The dev server is persistent and doesn't need to be restarted
+
+## Code Quality
+
+- Always use TypeScript with proper type definitions
+- Prefer `const` over `let` when variables don't change
+- Use descriptive variable and function names
+- Add proper error handling and validation
+
+## File Organization
+
+- Keep components organized in appropriate directories
+- Use consistent naming conventions (PascalCase for components, camelCase for functions)
+- Import from the closest relative path when possible
+
+## Development Workflow
+
+- Test changes incrementally
+- Use the browser's dev tools for debugging
+- Check console for errors and warnings before considering tasks complete
+
+## Convex Best Practices
+
+- Use proper Convex query and mutation patterns
+- Handle loading and error states appropriately
+- Validate data at the boundaries (client and server)

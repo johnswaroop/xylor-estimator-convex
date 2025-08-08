@@ -1,0 +1,202 @@
+---
+description: Frontend development rules emphasizing extensive shadcn/ui usage
+globs: ["**/*.tsx", "**/*.ts", "**/*.css"]
+alwaysApply: true
+---
+
+# Frontend Rules: Extensive shadcn/ui Usage
+
+## Core Principles
+
+### 1. shadcn/ui First Approach
+
+- **ALWAYS** use shadcn/ui components as the foundation for any UI element
+- Before creating custom components, check if shadcn/ui has a suitable component
+- Prefer composing existing shadcn components over building from scratch
+- Use `npx shadcn-ui@latest add [component]` to add new components as needed
+
+### 2. Component Composition Over Customization
+
+- Build complex UIs by composing multiple shadcn components
+- Use shadcn's compound component patterns (e.g., Card + CardHeader + CardContent)
+- Leverage shadcn's built-in variants and size props before custom styling
+
+## Component Guidelines
+
+### 3. Required shadcn Components Usage
+
+Always use these shadcn components when applicable:
+
+- **Forms**: `Form`, `FormField`, `FormItem`, `FormLabel`, `FormControl`, `FormMessage`
+- **Inputs**: `Input`, `Textarea`, `Select`, `Checkbox`, `RadioGroup`, `Switch`
+- **Buttons**: `Button` with variants (default, destructive, outline, secondary, ghost, link)
+- **Navigation**: `NavigationMenu`, `Breadcrumb`, `Pagination`
+- **Feedback**: `Alert`, `AlertDialog`, `Toast`, `Badge`, `Progress`
+- **Layout**: `Card`, `Separator`, `Tabs`, `Accordion`, `Collapsible`
+- **Overlays**: `Dialog`, `Sheet`, `Popover`, `Tooltip`, `DropdownMenu`
+- **Data Display**: `Table`, `DataTable`, `Avatar`, `Calendar`
+
+### 4. Component File Organization
+
+```
+components/
+├── ui/                 # shadcn components (auto-generated)
+├── forms/             # Composed form components using shadcn Form
+├── layouts/           # Layout components using shadcn primitives
+├── features/          # Feature-specific composed components
+└── custom/            # Only when shadcn alternatives don't exist
+```
+
+### 5. Styling Rules
+
+#### Tailwind + shadcn Harmony
+
+- Use shadcn's built-in className props for styling
+- Apply additional Tailwind classes through the `className` prop
+- Use `cn()` utility for conditional classes: `cn("base-classes", conditionalClasses)`
+- Follow shadcn's color system: use CSS variables like `hsl(var(--primary))`
+
+#### Custom Styling Hierarchy
+
+1. Use shadcn variant props first (`variant="outline"`, `size="sm"`)
+2. Add Tailwind utilities via className
+3. Extend in `globals.css` only for global theming
+4. Create custom variants in component files only as last resort
+
+### 6. Form Handling Patterns
+
+```tsx
+// GOOD: Using shadcn Form with react-hook-form
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
+const MyForm = () => {
+  const form = useForm({
+    resolver: zodResolver(schema),
+  });
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit">Submit</Button>
+      </form>
+    </Form>
+  );
+};
+```
+
+### 7. Data Display Patterns
+
+- Use `Table` for tabular data with `TableHeader`, `TableBody`, `TableRow`, `TableCell`
+- Use `Card` for content grouping with `CardHeader`, `CardTitle`, `CardContent`, `CardFooter`
+- Use `Badge` for status indicators and tags
+- Use `Avatar` for user profiles with fallback patterns
+
+### 8. Interactive Component Rules
+
+- Always use `Button` component, never raw `<button>` elements
+- Use `DropdownMenu` for action menus, not custom dropdowns
+- Use `Sheet` for mobile-first slide-out panels
+- Use `Dialog` for modals with proper accessibility
+- Use `Tooltip` for helpful hints, not hover-based custom solutions
+
+## Accessibility & UX Standards
+
+### 9. Accessibility First
+
+- shadcn components come with accessibility built-in - don't override ARIA attributes
+- Use `FormDescription` for input help text
+- Always provide proper labels through `FormLabel` or `aria-label`
+- Use `VisuallyHidden` component for screen reader only content
+
+### 10. Loading & Error States
+
+- Use `Skeleton` for loading states, not custom spinners
+- Use `Alert` with appropriate variants for error messages
+- Use `Toast` for success/error notifications
+- Use `Progress` for long-running operations
+
+## Theme & Customization
+
+### 11. Theme Consistency
+
+- Modify theme through CSS variables in `globals.css`
+- Use `hsl(var(--primary))` format for custom colors
+- Extend theme in `tailwind.config.js` for additional design tokens
+- Keep shadcn's design system intact - extend, don't replace
+
+### 12. Dark Mode Support
+
+- Use shadcn's built-in dark mode classes
+- Test all components in both light and dark modes
+- Use `dark:` prefixes for dark mode specific styling
+- Ensure proper contrast ratios in both themes
+
+## Performance & Best Practices
+
+### 13. Import Optimization
+
+```tsx
+// GOOD: Direct imports
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+// AVOID: Barrel imports that hurt tree-shaking
+import { Button, Input } from "@/components/ui";
+```
+
+### 14. Component Reusability
+
+- Create composed components that wrap shadcn primitives with business logic
+- Use render props or children functions for flexible composition
+- Keep shadcn components pure - add business logic in wrapper components
+
+### 15. Code Quality Standards
+
+- Always use TypeScript with proper types for props
+- Use Zod schemas for form validation
+- Implement proper error boundaries around complex composed components
+- Write unit tests for custom composed components, not shadcn primitives
+
+## Anti-Patterns to Avoid
+
+### 16. What NOT to Do
+
+- ❌ Don't create custom buttons when `Button` component exists
+- ❌ Don't use raw HTML form elements instead of shadcn Form components
+- ❌ Don't override shadcn component internals or accessibility features
+- ❌ Don't create custom dropdowns, modals, or tooltips from scratch
+- ❌ Don't use other UI libraries alongside shadcn (conflicts with design system)
+- ❌ Don't style components with CSS modules when Tailwind + shadcn works
+- ❌ Don't copy-paste shadcn component code - use the CLI to add components
+
+### 17. Migration Strategy
+
+- When encountering non-shadcn components, prioritize migrating to shadcn equivalents
+- Audit existing components quarterly to identify shadcn migration opportunities
+- Document any unavoidable custom components and their shadcn alternatives
+
+Remember: shadcn/ui is not just a component library - it's a design system. Embrace its patterns, conventions, and philosophy for consistent, accessible, and maintainable frontend code.
