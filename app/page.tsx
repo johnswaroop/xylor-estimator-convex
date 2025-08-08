@@ -14,7 +14,7 @@ export default function Home() {
     if (!isAuthenticated) {
       router.push("/auth/signin");
     }
-    router.push("/dashboard");
+    router.push("/funnel");
   }, [router]);
 
   return (

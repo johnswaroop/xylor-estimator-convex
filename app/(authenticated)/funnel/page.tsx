@@ -1,5 +1,5 @@
 "use client";
-import Dashboard from "./Dashboard";
+import Dashboard from "./funnel";
 import React from "react";
 import { useQueryState } from "nuqs";
 import { Id } from "@/convex/_generated/dataModel";

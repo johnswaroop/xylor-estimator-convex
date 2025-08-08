@@ -464,7 +464,7 @@ export default function UserPage() {
 
         <div className="flex gap-2">
           <Button asChild variant="outline">
-            <Link href="/dashboard">
+            <Link href="/funnel">
               <LayoutDashboard className="h-4 w-4" />
               Dashboard
             </Link>
@@ -615,7 +615,7 @@ export default function UserPage() {
               </CardDescription>
             </div>
             <Button asChild variant="outline" size="sm">
-              <Link href="/dashboard">
+              <Link href="/funnel">
                 <LayoutDashboard className="h-4 w-4" />
                 Dashboard
               </Link>

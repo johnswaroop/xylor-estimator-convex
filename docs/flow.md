@@ -39,7 +39,7 @@ flowchart TD
 
     J --> N
     M --> C
-    N --> O["Redirect to /dashboard"]
+    N --> O["Redirect to /funnel"]
 
     O --> P{"User Has Companies?"}
     P -->|No| Q["Redirect to /team page"]

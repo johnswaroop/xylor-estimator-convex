@@ -114,7 +114,7 @@ export default function TeamAssigner({
       }
     } else {
       toast.success("Team configuration saved successfully");
-      router.push(`/dashboard`);
+      router.push(`/funnel`);
     }
     setIsSaving(false);
   };

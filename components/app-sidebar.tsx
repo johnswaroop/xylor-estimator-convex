@@ -27,14 +27,14 @@ const data = {
   },
   navMain: [
     {
-      title: "Dashboard",
-      url: "/dashboard",
+      title: "Funnel",
+      url: "/funnel",
       icon: Filter,
       isActive: true,
       children: [
         {
           title: "New Lead",
-          url: "/dashboard/new-lead",
+          url: "/funnel/new-lead",
           icon: IconPlus,
         },
       ],

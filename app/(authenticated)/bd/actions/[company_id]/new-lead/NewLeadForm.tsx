@@ -106,11 +106,11 @@ export default function NewLeadForm({ company_id }: { company_id: string }) {
       toast.success("Lead created successfully!");
       form.reset();
 
-      //router.push(`/dashboard`);
+      //router.push(`/funnel`);
       if (build_team) {
         router.push(`/bd/actions/${company_id}/build-team/${leadId}`);
       } else {
-        router.push(`/dashboard`);
+        router.push(`/funnel`);
       }
     } catch (error) {
       console.error("Error creating lead:", error);

@@ -59,24 +59,24 @@ export function useBreadcrumbs(
     const segments = pathname.split("/").filter(Boolean);
     const breadcrumbs: BreadcrumbItem[] = [];
 
-    // Base breadcrumb - always include Dashboard
+    // Base breadcrumb - always include Funnel
     breadcrumbs.push({
-      label: "Dashboard",
-      href: companyId ? `/dashboard?companyId=${companyId}` : "/dashboard",
+      label: "Funnel",
+      href: companyId ? `/funnel?companyId=${companyId}` : "/funnel",
     });
 
     // Handle different route patterns
     if (segments.includes("dashboard")) {
       const dashboardIndex = segments.indexOf("dashboard");
 
-      // Dashboard lead detail: /dashboard/lead/[lead_id]
+      // Dashboard lead detail: /funnel/lead/[lead_id]
       if (
         segments[dashboardIndex + 1] === "lead" &&
         segments[dashboardIndex + 2]
       ) {
         breadcrumbs.push({
           label: "Leads",
-          href: companyId ? `/dashboard?companyId=${companyId}` : "/dashboard",
+          href: companyId ? `/funnel?companyId=${companyId}` : "/funnel",
         });
 
         const leadName = leadData?.lead?.name || "Lead Details";
@@ -95,7 +95,7 @@ export function useBreadcrumbs(
 
       breadcrumbs.push({
         label: "Actions",
-        href: companyId ? `/dashboard?companyId=${companyId}` : "/dashboard",
+        href: companyId ? `/funnel?companyId=${companyId}` : "/funnel",
       });
 
       switch (actionType) {
@@ -113,7 +113,7 @@ export function useBreadcrumbs(
               label: leadName,
               href:
                 companyId && extractedLeadId
-                  ? `/dashboard/lead/${extractedLeadId}?companyId=${companyId}`
+                  ? `/funnel/lead/${extractedLeadId}?companyId=${companyId}`
                   : undefined,
             });
             breadcrumbs.push({
@@ -130,7 +130,7 @@ export function useBreadcrumbs(
               label: leadName,
               href:
                 companyId && extractedLeadId
-                  ? `/dashboard/lead/${extractedLeadId}?companyId=${companyId}`
+                  ? `/funnel/lead/${extractedLeadId}?companyId=${companyId}`
                   : undefined,
             });
             breadcrumbs.push({
@@ -147,7 +147,7 @@ export function useBreadcrumbs(
               label: leadName,
               href:
                 companyId && extractedLeadId
-                  ? `/dashboard/lead/${extractedLeadId}?companyId=${companyId}`
+                  ? `/funnel/lead/${extractedLeadId}?companyId=${companyId}`
                   : undefined,
             });
             breadcrumbs.push({

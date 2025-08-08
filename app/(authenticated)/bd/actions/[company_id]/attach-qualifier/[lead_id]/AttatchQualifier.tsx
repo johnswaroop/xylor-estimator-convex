@@ -96,7 +96,7 @@ export default function AttatchQualifier({
         router.push(`/bd/actions/${company_id}/send-qualifier/${lead_id}`);
       } else {
         toast.success("Qualifier saved successfully");
-        router.push(`/dashboard`);
+        router.push(`/funnel`);
       }
     } catch (error) {
       toast.error("Failed to save qualifier");

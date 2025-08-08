@@ -193,11 +193,7 @@ function DataRow({
   );
 }
 
-export default function Dashboard({
-  company_id,
-}: {
-  company_id: Id<"company">;
-}) {
+export default function Funnel({ company_id }: { company_id: Id<"company"> }) {
   const router = useRouter();
   // Fetch leads data from Convex
   const leadsData = useQuery(api.lead_service.getLeadsByCompany, {
@@ -293,7 +289,7 @@ export default function Dashboard({
   const handleRowClick = (rowData: z.infer<typeof schema>) => {
     console.log("Row clicked:", rowData);
     // Navigate to lead detail page
-    router.push(`/dashboard/lead/${rowData._id}?companyId=${company_id}`);
+    router.push(`/funnel/lead/${rowData._id}?companyId=${company_id}`);
   };
 
   // Filter data based on selected step and substep
