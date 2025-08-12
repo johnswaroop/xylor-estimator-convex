@@ -1,6 +1,16 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 import { authTables } from "@convex-dev/auth/server";
+import {
+  estimate,
+  estimate_components,
+  estimate_installation,
+  estimate_cost_plan,
+  estimate_final,
+  estimate_calculations,
+  estimate_override_edits,
+  cost_lookup,
+} from "./schema/estimation_schema";
 
 // The schema is normally optional, but Convex Auth
 // requires indexes defined on `authTables`.
@@ -269,4 +279,13 @@ export default defineSchema({
   status,
   qualification_form,
   note,
+  // Estimation system tables
+  estimate,
+  estimate_components,
+  estimate_installation,
+  estimate_cost_plan,
+  estimate_final,
+  estimate_calculations,
+  estimate_override_edits,
+  cost_lookup,
 });
